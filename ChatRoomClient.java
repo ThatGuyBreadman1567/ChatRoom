@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+//10.30.39.42
+
 public class ChatRoomClient 
 {
 
