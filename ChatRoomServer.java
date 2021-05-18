@@ -4,11 +4,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ChatRoomServer 
 {
 	
 	private static int numclients = 0;
+	private static ArrayList<Socket> clients = new ArrayList<Socket>();
 
 	public static void main(String[] args) throws IOException 
 	{
@@ -27,7 +29,7 @@ public class ChatRoomServer
 				
 				Handler clientThread = new Handler(client);
 				new Thread(clientThread).start();
-				add_client();
+				add_client(client);
 				
 				
 				
@@ -40,14 +42,29 @@ public class ChatRoomServer
 
 	}
 	
-	public static void add_client()
+	public static void add_client(Socket client)
 	{
 		System.out.println("clients: "+ (++numclients));
+		clients.add(client);
+		for(Socket a : clients)
+		{
+			System.out.println(a.toString());
+		}
 	}
 
-	public static void remove_client()
+	public static void remove_client(Socket client)
 	{
 		System.out.println("clients: "+ (--numclients));
+		clients.remove(client);
+		for(Socket a : clients)
+		{
+			System.out.println(a.toString());
+		}
+	}
+	
+	public static ArrayList<Socket> getClients()
+	{
+		return clients;
 	}
 }
 
@@ -55,6 +72,7 @@ class Handler implements Runnable
 {
 	private Socket client;
 	private String name;
+	private ArrayList<Socket> clients = ChatRoomServer.getClients();
 	
 	public Handler(Socket s)
 	{
@@ -65,10 +83,8 @@ class Handler implements Runnable
 	{
 		try
 		{
-					
 			
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			PrintWriter out = new PrintWriter(client.getOutputStream(),true);
 			
 			String message;
 			
@@ -78,10 +94,14 @@ class Handler implements Runnable
 			while((message = in.readLine()) != null)
 			{
 				System.out.println(name +": " + message);
-				out.println(name + ": " + message);
+				for(Socket a : clients)
+				{
+					PrintWriter out = new PrintWriter(a.getOutputStream(),true);
+					out.println(name + ": " + message);
+				}
 			}
 			client.close();
-			ChatRoomServer.remove_client();
+			ChatRoomServer.remove_client(client);
 		}
 		catch(Exception e)
 		{
