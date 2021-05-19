@@ -102,6 +102,12 @@ class Handler implements Runnable
 			}
 			client.close();
 			ChatRoomServer.remove_client(client);
+			System.out.println(name + " has left the chat");
+			for(Socket a :  clients)
+			{
+				PrintWriter out = new PrintWriter(a.getOutputStream(),true);
+				out.println(name + " has left the chat");
+			}
 		}
 		catch(Exception e)
 		{
